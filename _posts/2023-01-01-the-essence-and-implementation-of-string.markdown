@@ -1,0 +1,91 @@
+---
+layout:     post
+title:      字符串本质与实现
+date:       2023-01-01
+catalog: true
+tags:
+    - Golang
+---
+
+## 字符串本质
+在Go语言中，字符串不能被修改，只能被访问，不能采取如下方式对字符串进行修改。
+```
+var b = "hello world"
+b[1] = '0'
+```
+Go语言运行时字符串string的表示结构如下。
+```
+type StringHeader struct {
+	Data uintptr
+	Len  int
+}
+```
+其中，Data指向底层的字符数组，Len 代表字符串的长度。字符串在本质上是一串字符数组，每个字符在存储时都对应了一个或多个整数，这涉及字符集的编码方式。
+
+Go语言中所有的文件都采用UTF-8的编码方式，同时字符常量使用UTF-8的字符编码集。 UFT-8是一种长度可变的编码方式，可包含世界上大部分的字符。上例中的字母都只占据 1字节，但是特殊的字符(例如大部分中文)会占据3字节。
+
+# 符文类型
+在Go语言中使用符文 (rune)类型来表示和区分字符串中的“字符”，rune 其实是int32的别称。
+
+当用range轮询字符串时，轮询的不再是单字节，而是具体的rune。如下所示，对字符串b 进行轮询，其第一个参数index 代表每个rune的字节偏移量，而runeValue为int32，代表符文数。
+```
+var b = "Go语言"
+for index, runeValue := range b {
+	fmt.Printf("%#U starts at byte position %d\n", runeValue, index)
+}
+
+// U+0047 'G' starts at byte position 0
+// U+006F 'o' starts at byte position 1
+// U+8BED '语' starts at byte position 2
+// U+8A00 '言' starts at byte position 5
+```
+使用for i++形式轮询字符串时，轮询的是单字节。
+```
+var b = "Go语言"
+for i := 0; i < len(b); i++ {
+	fmt.Println(reflect.TypeOf(b[i]))
+}
+fmt.Println("#######")
+for i, v := range b {
+	fmt.Println(reflect.TypeOf(i), reflect.TypeOf(v))
+}
+/*
+	uint8
+	uint8
+	uint8
+	uint8
+	uint8
+	uint8
+	uint8
+	uint8
+	#######
+	int int32
+	int int32
+	int int32
+	int int32
+*/
+```
+byte 等同于uint8，常用来处理ascii字符
+
+rune 等同于int32，常用来处理unicode或utf-8字符
+
+# 字符串底层原理
+## 字符串解析
+字符串有两种声明方式:
+```
+var a string = `hello world`
+var b string = "hello world"
+```
+对于单撇号的处理比较简单：一直循环向后读取，直到寻找到配对的单撒号。
+
+双引号调用stdStrng 函数，如果出现另一个双引号则直接退出，如果出现了\\，则对后面的字符进行转义。在双引号中不能出现换行符。
+
+## 字符串与字节数组的转换
+```
+a := "hello world"
+b := []byte(a)
+c := string(b)
+```
+字节数组与字符串的相互转换并不是简单的指针引用，而是涉及了复制。当字符串大于32字节时，还需要申请堆内存，因此在涉及些密集的转换场景时，需要评估这种转换带来的性能损耗。
+
+
