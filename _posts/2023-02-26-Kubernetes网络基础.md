@@ -147,6 +147,7 @@ Kubernetes Service能够支持TCP、UDP和SCTP三种协议，默认是TCP协议�
 * port表示Service暴露的服务端口，也是客户端访问用的端口，例如Cluster IP:port是提供给集群内部客户访问Service的入口。需要注意的是，port不仅是Cluster IP上暴露的端口，还可以是external IP和LoadBalancer IP。Service的port并不监听在节点IP上，即无法通过节点IP:port的方式访问Service。
 * NodePort是Kubernetes提供给集群外部访问Service入口的一种方式（另一种方式是Load Balancer），所以可以通过Node IP:nodePort的方式提供集群外访问Service的入口。需要注意的是，集群外指的是Pod网段外，例如Kubernetes节点或因特网。
 * targetPort是应用程序实际监听Pod内流量的端口，从port和NodePort上到来的数据，最终经过Kube-proxy流入后端Pod的targetPort进入容器。
+
 ## Service类型
 ### Cluster IP
 Cluster IP是默认类型，自动分配集群内部可以访问的虚IP。创建一个Service，只要不做特别指定，都是Cluster IP类型。
