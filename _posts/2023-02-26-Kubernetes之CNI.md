@@ -37,12 +37,14 @@ flannel（v0.7+）目前已经支持的底层实现有：
 * Host-Gateway
 * AWS VPC
 * GCE路由
-  其中，性能最好的应该是Host-Gateway。
+  
+其中，性能最好的应该是Host-Gateway。
 ## 安装配置
 flanneld要先于Docker启动。flanneld启动时主要做了以下几个动作：
 * 从etcd中获取network（大网）的配置信息；
 * 划分subnet（子网），并在etcd中进行注册；
 * 将子网信息记录到flannel维护的/run/flannel/subnet.env文件中；
+
 ## backend详解
 flannel通过在每一个节点上启动一个叫flanneld的进程，负责每一个节点上的子网划分，并将相关的配置信息（如各个节点的子网网段、外部IP等）保存到etcd中（flanneld的配置文件以ConfigMap的形式挂载到容器内的/etc/kube-flannel/目录），而具体的网络包转发交给具体的backend实现。
 flanneld可以在启动时通过配置文件指定不同的backend进行网络通信，目前比较成熟的backend有UDP、VXLAN和Host Gateway三种。目前，VXLAN是官方最推崇的一种backend实现方式；Host Gateway一般用于对网络性能要求比较高的场景，但需要基础网络架构的支持；UDP则用于测试及一些比较老的不支持VXLAN的Linux内核。
@@ -159,6 +161,7 @@ upd   0   0 0.0.0.0:8470   0.0.0.0:*   -
 4. 到达host B eth1的IP包匹配到host B中的路由表（10.244.2.0），IP包被转发给cni0。
 5. cni0将IP包转发给连接在cni0上的容器B。
    host-gw模式下，各个节点之间的跨节点网络通信要通过节点上的路由表实现，因此必须要通信双方所在的宿主机能够直接路由。这就要求flannel host-gw模式下集群中所有的节点必须处于同一个网络内，这个限制使得host-gw模式无法适用于集群规模较大且需要对节点进行网段划分的场景。host-gw的另外一个限制则是随着集群中节点规模的增大，flanneld维护主机上成千上万条路由表的动态更新也是一个不小的压力，因此在路由方式下，路由表规则的数量是限制网络规模的一个重要因素。
+
 # Calico
 Calico是一个基于BGP的纯三层的数据中心网络方案（也支持overlay网络）。三层通信模型表示每个容器都通过IP直接通信，中间通过路由转发找到对方。在这个过程中，容器所在的节点类似于传统的路由器，提供了路由查找的功能。要想路由能够正常工作，每个容器所在的主机节点扮演了虚拟路由器（vRouter）的功能。
 
