@@ -8,7 +8,7 @@ tags:
 ---
 
 # 工作负载节点
-所有的 Kubernetes 组件，都提供了 /metrics 接口用来暴露监控数据。
+所有的 Kubernetes 组件，都提供了/metrics接口用来暴露监控数据。
 ## Kube-Proxy
 Kube-Proxy 监听的端口10249用来暴露监控指标。
 ### 通用的 Go 程序相关的指标
