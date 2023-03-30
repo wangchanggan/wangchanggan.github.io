@@ -18,9 +18,9 @@ Kubcrnctes将资源再次分组和版本化，形成 Group（资源组）、Vers
 ![](/img/in-post/Kubernetes/data-structure.png)
 
 Kubernetes系统支持多个Group，每个 Group支持多个 Version，每个Version支持多个 Resource，其中部分资源同时会拥有自己的子资源(即SubResource)。例如，Deployment资源拥有Status子资源。
-资源组、资源版本、资源、子资源的完整表现形式为<group>/<version>/<resource>/<subresource>。以常用的Deployment资源为例，其完整表现形式为apps/v1/deployments/status。
+资源组、资源版本、资源、子资源的完整表现形式为 &lt;group&gt;/&lt;version&gt;/&lt;resource&gt;/&lt;subresource&gt;。以常用的Deployment资源为例，其完整表现形式为apps/v1/deployments/status。
 
-另外，资源对象（Resource Object）由“资源组+资源版本+资源种类”组成，并在实例化后表达一个资源对象，例如 Deployment资源实例化后拥有资源组、资源版本及资源种类，其表现形式为<group>/<version>, Kind=<kind>，例如apps/v1, Kind=Deployment。
+另外，资源对象（Resource Object）由“资源组+资源版本+资源种类”组成，并在实例化后表达一个资源对象，例如 Deployment资源实例化后拥有资源组、资源版本及资源种类，其表现形式为&lt;group&gt;/&lt;version&gt;, Kind=&lt;kind&gt;，例如apps/v1, Kind=Deployment。
 
 每一个资源都拥有一定数量的资源操作方法（即 Verbs），资源操作方法用于Etcd集群存储中对资源对象的增、删、改、查操作。目前Kubernetes系统支持8种资操作方法，分别是 create、delete、deletecollection、get、list、patch、update、watch操作方法。
 
@@ -48,10 +48,10 @@ Group（资源组)，在Kubernetes API Server中也可称其为 APIGroup. Kubern
 * Preferred Version:首选版本。当一个资源组内存在多个资源版本时，Kubernetes API Server在使用资源时会选择一个首选版本作为当前版本。
 
 在当前的Kubernetes系统中，支持两类资源组，分别是拥有组名的资源组和没有组名的资源组。
-* 拥有组名的资源组：其表现形式为<group>/<version>/<resource>，例如apps/v1/deployments。
-* 没有组名的资源组：被称为Core Groups（即核心资源组）或Legacy Groups，也可被称为GroupLess（即无组）。其表现形式为/<version>/<resource>，例如/v1/pods。
+* 拥有组名的资源组：其表现形式为&lt;group&gt;/&lt;version&gt;/&lt;resource&gt;，例如apps/v1/deployments。
+* 没有组名的资源组：被称为Core Groups（即核心资源组）或Legacy Groups，也可被称为GroupLess（即无组）。其表现形式为/&lt;version&gt;/&lt;resource&gt;，例如/v1/pods。
 
-两类资源组表现形式不同，形成的HTTP PATH 路径也不同。拥有组名的资源组的以/apis为前缀，其表现形式为/apis/<group>/<version>/<resource>，例如http://localhost:8080/apis/apps/v1/deployments。没有组名的资源组的以/api为前缀，其表现形式为/api/<version>/<resource>，例如http://localhost:8080/api/v1/pods。
+两类资源组表现形式不同，形成的HTTP PATH 路径也不同。拥有组名的资源组的以/apis为前缀，其表现形式为/apis/&lt;group&gt;/&lt;version&gt;/&lt;resource&gt;，例如http://localhost:8080/apis/apps/v1/deployments。没有组名的资源组的以/api为前缀，其表现形式为/api/&lt;version&gt;/&lt;resource&gt;，例如http://localhost:8080/api/v1/pods。
 
 ## Version
 
@@ -126,7 +126,7 @@ Kubernetes资源可分为内置资源(Kubernetes Resources)和自定义资源(Cu
 ![](/img/in-post/Kubernetes/resource-object-manifest-file.png)
 
 一个资源对象需要用 5个字段来描述它，分别是Group/Version、Kind、MetaData、Spec、Status，这些字段定义在YAML或JSON文件中。Kubernetes 系统中的所有的资源对象都可以采用YAML或JSON格式的描述文件来定义。
-* apiVersion：指定创建资源对象的资源组和资源版本，其表现形式为<group>/<version>，若是core资源组(即核心资源组)下的资源对象，其表现形式为<version>。
+* apiVersion：指定创建资源对象的资源组和资源版本，其表现形式为&lt;group&gt;/&lt;version&gt;，若是core资源组(即核心资源组)下的资源对象，其表现形式为&lt;version&gt;。
 * Kind：指定创建资源对象的种类。
 * metadata：描述创建资源对象的元数据信息，例如名称、命名空间等。
 * spec：包含有关Deployment资源对象的核心信息，告诉Kubernetes期望的资源状态、副本数量、环境变量、卷等信息。
