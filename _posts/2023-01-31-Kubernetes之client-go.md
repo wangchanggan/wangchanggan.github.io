@@ -33,7 +33,7 @@ kubeconfig配置信息通常包含3个部分：
 
 ![](/img/in-post/Kubernetes/informer.png)
 
-1. 资源Informer
+1、资源Informer
 
 每一个Kubernetes资源上都实现了Informer机制。每一个Informer上都会实现Informer和Lister方法。
 ```
@@ -43,7 +43,7 @@ type PodInformer interface {
 }
 ```
 
-2. Shared Informer共享机制
+2、Shared Informer共享机制
 
 若同一资源的Informer被实例化了多次，每个Informer使用一个Reflector，那么会运行过多相同的ListAndWatch，太多重复的序列化和反序列化操作会导致Kubernetes API Server负载过重。
 
@@ -52,7 +52,7 @@ Shared Informer可以使同一类资源Informer共享一个Reflector，这样可
 ```
 type sharedInformerFactory struct {
     ...
-	informers map[reflect.Type]cache.SharedIndexInformer
+    informers map[reflect.Type]cache.SharedIndexInformer
 }
 
 func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer {
@@ -84,7 +84,7 @@ Reflector用于监控（Watch）指定的Kubernetes资源，当监控的资源�
 通过NewReflector实例化Reflector对象，实例化过程中须传入 ListerWatcher 数接口对象，它拥有 List和 Watch方法，用于获取及监控资源列表。
 
 ListAndWatch 函数实现可分为两部分：
-1. 获取资源列表数据
+1、获取资源列表数据
 
 ListAndWatch List 在程序第一次运行时获取该资源下所有的对象数据并将其存储至DeltaFIFO中。
 获取资源数据是由 options的 ResourceVersion（资源版本号）参数控制的，Kubernetes 中所有的资源都拥有该字段，它标识当前资源对象的版本号。每次修改当前资源对象时，Kubernetes APl Server 都会更改ResourceVersion，使得 client-go执行 Watch操作时可以根据ResourceVersion来确定当前资源对象是否发生变化。
@@ -96,7 +96,7 @@ Kubernetes API Server对 ResourceVersion资源版本号依赖于Etcd集群中的
 
 createdIndex 和 modifiedIndex都是原子操作，其中 modifiedIndex机制被Kubernetes系统用于获取资源版本号(ResourceVersion)。 Kubernetes系统通过资源版本号的概念来实现乐观并发控制，也称乐观锁(Optimistic Concurrency Control)。
 
-2. 监控资源对象
+2、监控资源对象
 
 Watch (监控)操作通过HTTP协议与Kubernetes API Server建立长连接，接收Kubernetes API Server发来的资源变更事件。Watch 操作的实现机制使用HTTP协议的分块传输编码(Chunked Transfer Encoding)。当client-go 调用Kubernetes API Server时，Kubernetes API Server在Response的HTTP Header中设置Transfer-Encoding的值为chunked，表示采用分块传输编码，客户端收到该信息后，便与服务端进行连接，并等待下一个数据块(即资源的事件信息)。
 ## DeltaFIFO
