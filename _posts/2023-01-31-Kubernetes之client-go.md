@@ -94,14 +94,14 @@ Kubernetes API Server对 ResourceVersion资源版本号依赖于Etcd集群中的
 * createdIndex：全局唯一且递增的正整数。每次在Etcd集群中创建key其会递增。
 * modifiedIndex: 与createdIndex功能类似，每次在 Etcd集群中修改key时其会递增。
 
-* createdIndex 和 modifiedIndex都是原子操作，其中 modifiedIndex机制被Kubernetes系统用于获取资源版本号(ResourceVersion)。 Kubernetes系统通过资源版本号的概念来实现乐观并发控制，也称乐观锁(Optimistic Concurrency Control)。
+createdIndex 和 modifiedIndex都是原子操作，其中 modifiedIndex机制被Kubernetes系统用于获取资源版本号(ResourceVersion)。 Kubernetes系统通过资源版本号的概念来实现乐观并发控制，也称乐观锁(Optimistic Concurrency Control)。
 
 2. 监控资源对象
 
 Watch (监控)操作通过HTTP协议与Kubernetes API Server建立长连接，接收Kubernetes API Server发来的资源变更事件。Watch 操作的实现机制使用HTTP协议的分块传输编码(Chunked Transfer Encoding)。当client-go 调用Kubernetes API Server时，Kubernetes API Server在Response的HTTP Header中设置Transfer-Encoding的值为chunked，表示采用分块传输编码，客户端收到该信息后，便与服务端进行连接，并等待下一个数据块(即资源的事件信息)。
 ## DeltaFIFO
 DeltaFIFO 可以分开理解，FIFO是一个先进先出的队列，它拥有队列操作的基本方法，例如Add、Update、Delete、List、Pop、Close等，而Delta是一个资源对象存储，它可以保存资源对象的操作类型，例如Added（添加）操作类型、Updated(更新）操作类型、Deleted（删除）操作类型、Sync（同步）操作类型等，消费者在处理该资源对象时能够了解该资源对象所发生的事情。
-# Indexer
+## Indexer
 Indexer是 client-go用来存储资源对象并自带索引功能的本地存储，Reflector从DeltaFIFO中将消费出来的资源对象存储至indexer。Indexer与Etcd集群中的数据完全保持一致。client-go可以很方便地从本地存储中读取相应的资源对象数据，而无须每次从远程Etcd集群中读取，以减轻kubernetes API Server 和 Etcd集群的压力。
 
 ThreadSafeMap是实现并发安全的存储。作为存储，它拥有存储相关的增、删、改、查操作方法，例如Add、Update、Delete、List、Get、 Replace、 Resync等。
