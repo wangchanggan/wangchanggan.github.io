@@ -238,12 +238,12 @@ spec:
           fieldPath: metadata.labels
         # 文件名
         path: labels
-	  - fieldRef:
-	    apiVersion: v1
-	    # 获取YAML配置文件中的annotations部分
-	    fieldPath: metadata.annotations
-	    # 文件名
-	    path: annotations
+      - fieldRef:
+        apiVersion: v1
+        # 获取YAML配置文件中的annotations部分
+        fieldPath: metadata.annotations
+        # 文件名
+        path: annotations
     name: istio-podinfo
 ```
 
