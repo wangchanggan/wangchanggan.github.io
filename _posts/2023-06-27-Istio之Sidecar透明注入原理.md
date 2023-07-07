@@ -88,7 +88,7 @@ Admission Controller有两种：
 
 Kubernetes 允许用户以Webhook的方式自定义准入控制器，Sidecar-injector就是这样一种特殊的MutatingAdmissionWebhook。
 
-![](/img/in-post/Istio/Sidecar/Sidecar-injector.png)
+![](/img/in-post/Istio/Sidecar/sidecar_injector.png)
 
 Sidecar-injector只在创建Pod时进行Sidecar容器注入，在Pod的创建请求到达Kube-apiserver后，首先进行认证鉴权，然后在准入控制阶段，Kube-apisever以REST的方式同步调用Sidecar injector Webook服务进行init容器与istio-proxy容器的注入，最后将Pod对象持久化存储到Eted中。
 
