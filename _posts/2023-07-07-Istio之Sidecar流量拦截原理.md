@@ -11,7 +11,7 @@ tags:
 
 如下图所示，TCP流量进入Istio应用及从应用发出的流量流出Pod的过程，其中①~③表示Inbound流量，④~⑥表示Outbound流量。
 
-![](/img/in-post/Istio/Sidecar/istio_traffic_direction.png)
+![](/img/in-post/Istio/sidecar/istio_traffic_direction.png)
 
 ①Inbound流量在进入Pod的网络协议栈时首先被iptables规则拦截。
 
@@ -97,7 +97,7 @@ Redirect模式下的典型iptables规则
 ## Rediret模式下Outbound场景的访问流程
 Istio Outbound为东西向流量中主动向目标服务发起访问的请求端。
 
-![](/img/in-post/Istio/Sidecar/redirect_outbound.png)
+![](/img/in-post/Istio/sidecar/redirect_outbound.png)
 
 | 序号 | 应用 | 方向 | 地址说明 | 处理链/表 | 匹配规则 | 功能描述 |
 |-----|-----|----|------|------------|--------|------------------|
@@ -119,7 +119,7 @@ tcp 6 431932 ESTABLISHED src=10.244.109.55 dst=10.244.109.53 sport=47930 dport=8
 ## Redirect模式下Pod内场景的访问流程
 有时需要在Istio的Pod中使用curl等命令测试本Pod内目标服务的连通性或直接访问Envoy的管理端口获取运行状态，在这种场景中不希望报文被iptables规则拦截而进入Envoy，所以将根据目标地址、目标网络设备及是否为Envoy容器发出连接作为条件进行判断。如果请求端的应用使用环回地址127.0.0.1作为目标地址或者本地网络设备lo，则不再进行拦截。
 
-![img.png](/img/in-post/Istio/Sidecar/redirect_pod.png)
+![](/img/in-post/Istio/sidecar/redirect_pod.png)
 
 | 序号 | 应用 | 方向 | 地址说明 | 处理链/表 | 匹配规则 | 功能描述 |
 |-----|-----|----|------|------------|--------|------------------|
@@ -129,7 +129,7 @@ tcp 6 431932 ESTABLISHED src=10.244.109.55 dst=10.244.109.53 sport=47930 dport=8
 ## Redirect模式下Inbound场景的访问流程
 在Istio服务网格内，Inbound流量指从Pod外进入Pod内的流量。比如frontend应用在访问forecast时，应用数据报文进入forecast Pod时被拦截进入Envoy 15006监听端口的流量，而一些外部的控制流量将直接访问Envoy的管理端口，比如15008、15090等，这些流量不应被拦截。
 
-![img.png](/img/in-post/Istio/Sidecar/redirect_inbound.png)
+![](/img/in-post/Istio/sidecar/redirect_inbound.png)
 
 | 序号 | 应用 | 方向 | 地址说明 | 处理链/表 | 匹配规则 | 功能描述 |
 |-----|-----|----|------|------------|--------|------------------|
@@ -143,7 +143,7 @@ tcp 6 431932 ESTABLISHED src=10.244.109.55 dst=10.244.109.53 sport=47930 dport=8
 ## Redirect模式下Outbound +lnbound（自身环回访问）场景的访问流程
 在Redirect模式下，当容器中同时存在服务访问者和提供者，且在经过Sidecar负载均衡后又恰巧选择了本Pod内的服务作为目标地址时，就被称为Outbound+Inbound场景。
 
-![](/img/in-post/Istio/Sidecar/redirect_outbound_inbound.png)
+![](/img/in-post/Istio/sidecar/redirect_outbound_inbound.png)
 
 | 序号 | 应用 | 方向 | 地址说明 | 处理链/表 | 匹配规则 | 功能描述 |
 |-----|-----|----|------|------------|--------|------------------|
@@ -287,6 +287,6 @@ kubectl exec -it istio-ingressgateway-76df49f94d-x1jqt -n istio-system -- curl h
 
 http.8080路由在处理用户请求时，如果请求匹配HTTP头部的domain，则此请求将被转发到VirtualService定义的服务名outbound|81231|forecast.default.svc.cluster.local。
 
-![](/img/in-post/Istio/Sidecar/ingress_gateway.png)
+![](/img/in-post/Istio/sidecar/ingress_gateway.png)
 
 需要注意的是，如果后端服务需要根据四层源地址信息作为判断依据，那么在Ingress网关创建新连接时，需要设置IP_TRANSPARENT标志，并将客户端地址绑定为新连接的本地地址。同时，服务端也要设置默认的路由规则为连接网关的二层设备，并指定默认路由via为网关地址。将使后端服务在服务网格中的部署不透明，因此Istio不支持这种透明的Ingress网关模式。在实际应用中，服务端通过解析HTTP协议头X-Forward-for来获得客户端的地址。
